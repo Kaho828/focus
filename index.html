@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>focus</title>
+
+<style>
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background-color: #f4f1ea;
+  font-family: Georgia, serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #222;
+}
+
+.menu a {
+  display: block;
+  font-size: 26px;
+  margin: 18px 0;
+  text-decoration: none;
+  color: inherit;
+}
+
+.tasks {
+  margin-top: 60px;
+  font-size: 18px;
+  width: 80%;
+  max-width: 320px;
+  text-align: left;
+}
+
+.task-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 8px 0;
+}
+
+.task-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.completed {
+  opacity: 0.4;
+  text-decoration: line-through;
+}
+
+button {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 6px;
+  margin-top: 10px;
+  border: none;
+  border-bottom: 1px solid #aaa;
+  background: transparent;
+  font-family: inherit;
+}
+</style>
+</head>
+
+<body>
+
+<div class="menu">
+  <a href="sms:">messages</a>
+  <a href="https://www.notion.so">notion</a>
+  <a href="calshow://">calendar</a>
+  <a href="photos-redirect://">photos</a>
+  <a href="music://">music</a>
+</div>
+
+<div class="tasks">
+  <div style="margin-bottom:10px;">today</div>
+  <div id="taskList"></div>
+  <input type="text" id="taskInput" placeholder="add task..." />
+</div>
+
+<script>
+const taskInput = document.getElementById("taskInput");
+const taskList = document.getElementById("taskList");
+
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+function saveTasks() {
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
+function renderTasks() {
+  taskList.innerHTML = "";
+
+  tasks.forEach((task, index) => {
+    const div = document.createElement("div");
+    div.className = "task-item";
+
+    const left = document.createElement("div");
+    left.className = "task-left";
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = task.completed;
+
+    const span = document.createElement("span");
+    span.textContent = task.text;
+
+    if (task.completed) {
+      span.classList.add("completed");
+    }
+
+    checkbox.addEventListener("change", () => {
+      tasks[index].completed = checkbox.checked;
+      saveTasks();
+      renderTasks();
+    });
+
+    left.appendChild(checkbox);
+    left.appendChild(span);
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "×";
+    deleteBtn.onclick = () => {
+      tasks.splice(index, 1);
+      saveTasks();
+      renderTasks();
+    };
+
+    div.appendChild(left);
+    div.appendChild(deleteBtn);
+    taskList.appendChild(div);
+  });
+}
+
+taskInput.addEventListener("keypress", function(e) {
+  if (e.key === "Enter" && taskInput.value.trim() !== "") {
+    tasks.push({
+      text: taskInput.value.trim(),
+      completed: false
+    });
+    taskInput.value = "";
+    saveTasks();
+    renderTasks();
+  }
+});
+
+renderTasks();
+</script>
+
+</body>
+</html>
