@@ -154,7 +154,9 @@ taskInput.addEventListener("keypress", function(e) {
     renderTasks();
   }
 });
-
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js");
+}
 renderTasks();
 </script>
 
